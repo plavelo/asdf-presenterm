@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for presenterm.
 GH_REPO="https://github.com/mfontanini/presenterm"
 TOOL_NAME="presenterm"
 TOOL_TEST="presenterm --help"
@@ -31,8 +30,6 @@ list_github_tags() {
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if presenterm has other means of determining installable versions.
 	list_github_tags
 }
 
@@ -40,9 +37,22 @@ download_release() {
 	local version filename url
 	version="$1"
 	filename="$2"
+	architecture="$(uname -m)"
+	os="$(uname | tr '[:upper:]' '[:lower:]')"
 
-	# TODO: Adapt the release URL convention for presenterm
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	if [ "$os" = "darwin" ]; then
+		os="apple-darwin"
+	fi
+
+	if [ "$os" = "linux" ]; then
+		os="unknown-linux-gnu"
+	fi
+
+	if [ "$architecture" = "arm64" ]; then
+		architecture="aarch64"
+	fi
+
+	url="$GH_REPO/releases/download/v${version}/presenterm-${version}-${architecture}-${os}.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -61,7 +71,6 @@ install_version() {
 		mkdir -p "$install_path"
 		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
 
-		# TODO: Assert presenterm executable exists.
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
