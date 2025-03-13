@@ -22,8 +22,6 @@
 Plugin:
 
 ```shell
-asdf plugin add presenterm
-# or
 asdf plugin add presenterm https://github.com/plavelo/asdf-presenterm.git
 ```
 
